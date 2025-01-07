@@ -1,7 +1,12 @@
-go build -o bin/fs
+build:
+	@go build -o bin/fs
 
 run: build
-	./bin/fs
+	@./bin/fs
+
+
+test:
+	@go test -v ./...ls
 
 
 
