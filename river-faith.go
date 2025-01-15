@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -17,9 +20,16 @@ type Faction struct {
 	Name string
 }
 
+type Event struct {
+	Type    string
+	Object  *Object
+	Faction *Faction
+}
+
 var (
 	objects  = make(map[string]*Object)
 	factions = make(map[string]*Faction)
+	events   = make(chan Event, 10)
 )
 
 func NewObject(id string) *Object {
@@ -79,19 +89,75 @@ func (f *Faction) KillObject(o *Object) {
 	}
 }
 
+func handleEvents() {
+	for event := range events {
+		switch event.Type {
+		case "claim":
+			event.Object.Claim(event.Faction)
+		case "release":
+			event.Object.Release()
+		case "confirm":
+			event.Object.ConfirmFaction(event.Faction)
+		case "leave":
+			event.Object.LeaveFaction()
+		case "kill":
+			event.Faction.KillObject(event.Object)
+		}
+	}
+}
+
 func main() {
-	// Example usage
+	// Start the event handler
+	go handleEvents()
+
+	// Example factions and objects
 	f1 := NewFaction("Faction1")
 	f2 := NewFaction("Faction2")
+	factions[f1.Name] = f1
+	factions[f2.Name] = f2
 
 	o1 := NewObject("Object1")
+	o2 := NewObject("Object2")
 	objects[o1.ID] = o1
+	objects[o2.ID] = o2
 
-	o1.Claim(f1)
+	// User input loop
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Print("Enter command (claim/release/confirm/leave/kill/exit): ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+
+		if input == "exit" {
+			break
+		}
+
+		fmt.Print("Enter object ID: ")
+		objectID, _ := reader.ReadString('\n')
+		objectID = strings.TrimSpace(objectID)
+		object, exists := objects[objectID]
+		if !exists {
+			fmt.Println("Object not found")
+			continue
+		}
+
+		var faction *Faction
+		if input != "release" && input != "leave" {
+			fmt.Print("Enter faction name: ")
+			factionName, _ := reader.ReadString('\n')
+			factionName = strings.TrimSpace(factionName)
+			faction, exists = factions[factionName]
+			if !exists {
+				fmt.Println("Faction not found")
+				continue
+			}
+		}
+
+		events <- Event{Type: input, Object: object, Faction: faction}
+		time.Sleep(1 * time.Second) // Give some time for the event to be processed
+	}
+
+	// Close the events channel and wait for the handler to finish
+	close(events)
 	time.Sleep(2 * time.Second)
-	o1.ConfirmFaction(f1)
-	time.Sleep(2 * time.Second)
-	o1.LeaveFaction()
-	time.Sleep(2 * time.Second)
-	f1.KillObject(o1)
 }

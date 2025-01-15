@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
-    image: docker pull postgres:17
+    image: postgres:17
     environment:
       POSTGRES_DB: tprod
       POSTGRES_USER: dev
