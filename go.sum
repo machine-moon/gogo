@@ -1,0 +1,4 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/machine-moon/gogo v0.0.0-20250107071728-ace7afbd6edd h1:RsuIwtJRI83Q03x4IsbXAV8vLCYXB11jtzvbiAFaQ5g=
+github.com/machine-moon/gogo v0.0.0-20250107071728-ace7afbd6edd/go.mod h1:0nq4qDRY4YYgoWXRBys3x8l7nPRFIP53aeK7YWn6UOA=
